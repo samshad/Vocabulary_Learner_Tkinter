@@ -129,7 +129,6 @@ def init_word_my_List():
         mylist_check_my_List.destroy()
         mylist_check_my_List = Checkbutton(check_frame_my_List, text='Add To My List.', variable=var_check_my_List, onvalue=1, offvalue=0,
                                    font='calibri 12')
-        mylist_check_my_List.deselect()
         if current_vocab_my_List[5] == 1:
             mylist_check_my_List.select()
         mylist_check_my_List.pack(side=LEFT)
@@ -137,7 +136,6 @@ def init_word_my_List():
         done_check_my_List.destroy()
         done_check_my_List = Checkbutton(check_frame_my_List, text='Done With This Word.', variable=var_check_my_List, onvalue=2, offvalue=0,
                                  font='calibri 12')
-        done_check_my_List.deselect()
         if current_vocab_my_List[5] == 2:
             done_check_my_List.select()
         done_check_my_List.pack(side=LEFT, padx=10)
@@ -402,14 +400,12 @@ if len(current_vocab_my_List) > 0:
 
     mylist_check_my_List = Checkbutton(check_frame_my_List, text='Add To My List.', variable=var_check_my_List, onvalue=1, offvalue=0,
                                font='calibri 12')
-    mylist_check_my_List.deselect()
     if current_vocab_my_List[5] == 1:
         mylist_check_my_List.select()
     mylist_check_my_List.pack(side=LEFT)
 
     done_check_my_List = Checkbutton(check_frame_my_List, text='Done With This Word.', variable=var_check_my_List, onvalue=2, offvalue=0,
                              font='calibri 12')
-    done_check_my_List.deselect()
     if current_vocab_my_List[5] == 2:
         done_check_my_List.select()
     done_check_my_List.pack(side=LEFT, padx=10)
