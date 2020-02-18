@@ -4,8 +4,61 @@ from random import choice
 import webbrowser
 
 
+def update_changes():
+    global var_check
+    global current_vocab
+    global txt3
+
+    mysen = str(txt3.get("1.0", 'end-1c')).strip()
+
+    conn = sqlite3.connect('vocab.db')
+    c = conn.cursor()
+
+    c.execute("""UPDATE vocab SET
+                word = :word,
+                meaning = :meaning,
+                shortdef = :shortdef,
+                longdef = :longdef,
+                url = :url,
+                done = :done,
+                mysentense = :mysentense
+                
+                WHERE oid = :oid""",
+              {
+                  'word': current_vocab[0],
+                  'meaning': current_vocab[1],
+                  'shortdef': current_vocab[2],
+                  'longdef': current_vocab[3],
+                  'url': current_vocab[4],
+                  'done': var_check.get(),
+                  'mysentense': mysen,
+                  'oid': current_vocab[7]
+              })
+
+    conn.commit()
+    conn.close()
+
+
 def open_url(url):
     webbrowser.open_new(url)
+
+
+def get_current_mylist_count():
+    conn = sqlite3.connect('vocab.db')
+    c = conn.cursor()
+    a = c.execute("SELECT COUNT(done) FROM vocab WHERE done = 1")
+    ret = a.fetchone()[0]
+    conn.close()
+    return ret
+
+
+def init_current_mylist_count():
+    global current_mylist_count
+    global mylist
+    current_mylist_count = get_current_mylist_count()
+    mylist.grid_forget()
+    mylist = Label(home, text='Words in MyList: ' + str(current_mylist_count), font='calibri 18 bold')
+    mylist.grid(row=3, column=1, columnspan=3, padx=200, pady=30)
 
 
 def init_current_done():
@@ -23,6 +76,9 @@ def init_word():
     global txt3
     global check_frame
     global current_vocab
+    global mylist_check
+    global done_check
+    global var_check
     short = str(current_vocab[2])
     long = str(current_vocab[3])
 
@@ -51,18 +107,22 @@ def init_word():
 
     check_frame.destroy()
     check_frame = LabelFrame(random)
-    check_frame.place(x=20, y=520)
+    check_frame.place(x=230, y=520)
 
-    var = IntVar()
+    var_check = IntVar()
 
-    mylist_check = Checkbutton(check_frame, text='Add To My List.', variable=var, onvalue=1, offvalue=0,
+    mylist_check.destroy()
+    mylist_check = Checkbutton(check_frame, text='Add To My List.', variable=var_check, onvalue=1, offvalue=0,
                                font='calibri 12')
+    mylist_check.deselect()
     if current_vocab[5] == 1:
         mylist_check.select()
     mylist_check.pack(side=LEFT)
 
-    done_check = Checkbutton(check_frame, text='Done With This Word.', variable=var, onvalue=2, offvalue=0,
+    done_check.destroy()
+    done_check = Checkbutton(check_frame, text='Done With This Word.', variable=var_check, onvalue=2, offvalue=0,
                              font='calibri 12')
+    done_check.deselect()
     if current_vocab[5] == 2:
         done_check.select()
     done_check.pack(side=LEFT, padx=10)
@@ -72,9 +132,10 @@ def init_word():
 
     txt3.destroy()
     txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD)
+    txt3.insert(INSERT, str(current_vocab[6]))
     txt3.place(x=180, y=570)
 
-    update_btn = Button(random, text='Update', command="", height=1, width=13,
+    update_btn = Button(random, text='Update', command=update_changes, height=1, width=13,
                           font='calibri 15')
     update_btn.place(x=620, y=590)
 
@@ -82,7 +143,7 @@ def init_word():
 def get_done_word():
     conn = sqlite3.connect('vocab.db')
     c = conn.cursor()
-    a = c.execute("SELECT COUNT(done) FROM vocab WHERE done == 2")
+    a = c.execute("SELECT COUNT(done) FROM vocab WHERE done = 2")
     ret = a.fetchone()[0]
     conn.close()
     return ret
@@ -91,7 +152,7 @@ def get_done_word():
 def get_vocabs():
     conn = sqlite3.connect('vocab.db')
     c = conn.cursor()
-    a = c.execute("SELECT *, oid FROM vocab WHERE done == 0")
+    a = c.execute("SELECT *, oid FROM vocab WHERE done = 0")
     ret = a.fetchall()
     conn.close()
     return ret
@@ -103,6 +164,7 @@ def get_random_vocab():
 
 
 def raise_frame(frame):
+    init_current_mylist_count()
     get_vocabs()
     init_word()
     init_current_done()
@@ -117,6 +179,7 @@ root.geometry('800x800+300+50')
 vocabs = get_vocabs()
 current_vocab = get_random_vocab()
 current_done = get_done_word()
+current_mylist_count = get_current_mylist_count()
 
 home = Frame(root)
 random = Frame(root)
@@ -133,7 +196,7 @@ totalword.grid(row=1, column=1, columnspan=3, padx=200, pady=25)
 doneword = Label(home, text='Learned Words: ' + str(current_done), font='calibri 18 bold')
 doneword.grid(row=2, column=1, columnspan=3, padx=200, pady=10)
 
-mylist = Label(home, text='Words in MyList: ' + str(0), font='calibri 18 bold')
+mylist = Label(home, text='Words in MyList: ' + str(current_mylist_count), font='calibri 18 bold')
 mylist.grid(row=3, column=1, columnspan=3, padx=200, pady=30)
 
 random_btn = Button(home, text='Learn Randomly', command=lambda: raise_frame(random), height=2, width=15,
@@ -170,23 +233,26 @@ dlabel = Label(random, text='Definitions: ', font='calibri 20')
 dlabel.place(x=20, y=140)
 
 check_frame = LabelFrame(random)
-check_frame.place(x=20, y=520)
+check_frame.place(x=230, y=520)
 
-var = IntVar()
+var_check = IntVar()
 
-mylist_check = Checkbutton(check_frame, text='Add To My List.', variable=var, onvalue=1, offvalue=0,
+mylist_check = Checkbutton(check_frame, text='Add To My List.', variable=var_check, onvalue=1, offvalue=0,
                            font='calibri 12')
+mylist_check.deselect()
 if current_vocab[5] == 1:
     mylist_check.select()
 mylist_check.pack(side=LEFT)
 
-done_check = Checkbutton(check_frame, text='Done With This Word.', variable=var, onvalue=2, offvalue=0,
+done_check = Checkbutton(check_frame, text='Done With This Word.', variable=var_check, onvalue=2, offvalue=0,
                          font='calibri 12')
+done_check.deselect()
 if current_vocab[5] == 2:
     done_check.select()
 done_check.pack(side=LEFT, padx=10)
 
 txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD)
+txt3.insert(INSERT, str(current_vocab[6]))
 txt3.place(x=180, y=570)
 
 details_label = Label(random, text='For More Details:', font='calibri 15')
