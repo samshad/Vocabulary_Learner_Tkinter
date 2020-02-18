@@ -74,6 +74,99 @@ def init_current_done():
     doneword.grid(row=2, column=1, columnspan=3, padx=200, pady=10)
 
 
+def get_my_List_vocab():
+    conn = sqlite3.connect('vocab.db')
+    c = conn.cursor()
+    a = c.execute("SELECT *, oid FROM vocab WHERE done = 1")
+    ret = a.fetchall()
+    conn.close()
+    if len(ret) > 0:
+        return choice(ret)
+    else:
+        return []
+
+
+def init_word_my_List():
+    global word_my_List
+    global def_label_my_List
+    global txt3_my_List
+    global check_frame_my_List
+    global current_vocab_my_List
+    global mylist_check_my_List
+    global done_check_my_List
+    global var_check_my_List
+
+    current_vocab_my_List = get_my_List_vocab()
+    
+    if len(current_vocab_my_List) > 0:
+        short = str(current_vocab_my_List[2])
+        long = str(current_vocab_my_List[3])
+
+        word_my_List.destroy()
+        word_my_List = Label(my_List, text=current_vocab_my_List[0], font='calibri 25 bold')
+        word_my_List.place(x=200, y=40)
+
+        def_label_my_List.destroy()
+        def_label_my_List = Label(my_List, text=current_vocab_my_List[1], font='calibri 15')
+        def_label_my_List.place(x=150, y=100)
+
+        txt = Text(my_List, height=13, width=30, font='calibri 15', wrap=WORD, padx=10, pady=5)
+        txt.place(x=20, y=185)
+        txt.insert(INSERT, short)
+        txt.config(state="disabled")
+
+        txt2 = Text(my_List, height=13, width=42, font='calibri 15', wrap=WORD, padx=10, pady=5)
+        txt2.place(x=350, y=185)
+        txt2.insert(INSERT, long)
+        txt2.config(state="disabled")
+
+        check_frame_my_List.destroy()
+        check_frame_my_List = LabelFrame(my_List)
+        check_frame_my_List.place(x=230, y=520)
+
+        var_check_my_List = IntVar()
+
+        mylist_check_my_List.destroy()
+        mylist_check_my_List = Checkbutton(check_frame_my_List, text='Add To My List.', variable=var_check_my_List, onvalue=1, offvalue=0,
+                                   font='calibri 12')
+        mylist_check_my_List.deselect()
+        if current_vocab_my_List[5] == 1:
+            mylist_check_my_List.select()
+        mylist_check_my_List.pack(side=LEFT)
+
+        done_check_my_List.destroy()
+        done_check_my_List = Checkbutton(check_frame_my_List, text='Done With This Word.', variable=var_check_my_List, onvalue=2, offvalue=0,
+                                 font='calibri 12')
+        done_check_my_List.deselect()
+        if current_vocab_my_List[5] == 2:
+            done_check_my_List.select()
+        done_check_my_List.pack(side=LEFT, padx=10)
+
+        mysentense_label_my_List = Label(my_List, text='My Sentense:', font='calibri 20')
+        mysentense_label_my_List.place(x=20, y=590)
+
+        txt3_my_List.destroy()
+        txt3_my_List = Text(my_List, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5)
+        txt3_my_List.insert(INSERT, str(current_vocab_my_List[6]))
+        txt3_my_List.place(x=180, y=570)
+
+        update_btn_my_List = Button(my_List, text='Update', command=update_changes, height=1, width=13,
+                            font='calibri 15')
+        update_btn_my_List.place(x=620, y=590)
+
+        details_label_my_List = Label(my_List, text='For More Details:', font='calibri 15')
+        details_label_my_List.place(x=20, y=690)
+
+        clickhere_label_my_List = Label(my_List, text='Click Here', font='calibri 15', fg="blue", cursor="hand2")
+        clickhere_label_my_List.place(x=180, y=690)
+        clickhere_label_my_List.bind("<Button-1>", lambda e: open_url(str(current_vocab_my_List[4])))
+
+        another_word_my_List = Button(my_List, text='Another Word', command=lambda: raise_frame(my_List), height=1,
+                                      width=13,
+                                      font='calibri 15')
+        another_word_my_List.place(x=310, y=735)
+
+
 def init_word():
     global word
     global def_label
@@ -83,10 +176,11 @@ def init_word():
     global mylist_check
     global done_check
     global var_check
+
+    current_vocab = get_random_vocab()
     short = str(current_vocab[2])
     long = str(current_vocab[3])
 
-    current_vocab = get_random_vocab()
     word.destroy()
     word = Label(random, text=current_vocab[0], font='calibri 25 bold')
     #word.grid(row=1, column=1, columnspan=2, padx=5, pady=10)
@@ -97,13 +191,13 @@ def init_word():
     #def_label.grid(row=2, column=0, columnspan=3, padx=5, pady=10)
     def_label.place(x=150, y=100)
 
-    txt = Text(random, height=13, width=30, font='calibri 15', wrap=WORD)
+    txt = Text(random, height=13, width=30, font='calibri 15', wrap=WORD, padx=10, pady=5)
     txt.place(x=20, y=185)
     #txt.grid(row=3, column=0, padx=10)
     txt.insert(INSERT, short)
     txt.config(state="disabled")
 
-    txt2 = Text(random, height=13, width=42, font='calibri 15', wrap=WORD)
+    txt2 = Text(random, height=13, width=42, font='calibri 15', wrap=WORD, padx=10, pady=5)
     txt2.place(x=350, y=185)
     #txt2.grid(row=3, column=2, columnspan=2, padx=15)
     txt2.insert(INSERT, long)
@@ -135,7 +229,7 @@ def init_word():
     mysentense_label.place(x=20, y=590)
 
     txt3.destroy()
-    txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD)
+    txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5)
     txt3.insert(INSERT, str(current_vocab[6]))
     txt3.place(x=180, y=570)
 
@@ -153,24 +247,19 @@ def get_done_word():
     return ret
 
 
-def get_vocabs():
+def get_random_vocab():
     conn = sqlite3.connect('vocab.db')
     c = conn.cursor()
     a = c.execute("SELECT *, oid FROM vocab WHERE done = 0")
     ret = a.fetchall()
     conn.close()
-    return ret
-
-
-def get_random_vocab():
-    global vocabs
-    return choice(vocabs)
+    return choice(ret)
 
 
 def raise_frame(frame):
     init_current_mylist_count()
-    get_vocabs()
     init_word()
+    init_word_my_List()
     init_current_done()
     frame.tkraise()
 
@@ -180,15 +269,16 @@ root.resizable(width=False, height=False)
 root.title('Vocabulary Learner')
 root.iconbitmap('Data/sru.ico')
 root.geometry('800x800+300+50')
-vocabs = get_vocabs()
 current_vocab = get_random_vocab()
+current_vocab_my_List = get_my_List_vocab()
 current_done = get_done_word()
 current_mylist_count = get_current_mylist_count()
 
 home = Frame(root)
 random = Frame(root)
+my_List = Frame(root)
 
-for frame in (home, random):
+for frame in (home, random, my_List):
     frame.grid(row=0, column=0, sticky='news')
 
 title = Label(home, text='Vocabulary Learner', font='calibri 35 bold')
@@ -207,7 +297,7 @@ random_btn = Button(home, text='Learn Randomly', command=lambda: raise_frame(ran
                     font='calibri 20')
 random_btn.grid(row=4, column=1, columnspan=3, padx=150, pady=20)
 
-mylist_btn = Button(home, text='My List', command="", height=2, width=15,
+mylist_btn = Button(home, text='My List', command=lambda: raise_frame(my_List), height=2, width=15,
                     font='calibri 20')
 mylist_btn.grid(row=5, column=1, columnspan=3, padx=150, pady=20)
 
@@ -255,7 +345,7 @@ if current_vocab[5] == 2:
     done_check.select()
 done_check.pack(side=LEFT, padx=10)
 
-txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD)
+txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5)
 txt3.insert(INSERT, str(current_vocab[6]))
 txt3.place(x=180, y=570)
 
@@ -271,6 +361,73 @@ another_word = Button(random, text='Another Word', command=lambda: raise_frame(r
 #another_word.grid(row=4, column=1, columnspan=3, padx=20, pady=15)
 another_word.place(x=310, y=735)
 
+################################# my_List_Frame #################################
+
+home_btn_ml = Button(my_List, text='Home', command=lambda: raise_frame(home), height=1, width=10,
+                        font='calibri 10')
+home_btn_ml.place(x=5, y=5)
+
+word_my_List = Label()
+def_label_my_List = Label()
+check_frame_my_List = LabelFrame()
+txt3_my_List = Text()
+details_label_my_List = Label()
+clickhere_label_my_List = Label()
+mylist_check_my_List = Checkbutton()
+done_check_my_List = Checkbutton()
+another_word_my_List = Button()
+wlabel_my_List = Label(my_List, text='Word: ', font='calibri 20')
+wlabel_my_List.place(x=20, y=45)
+dlabel_my_List = Label(my_List, text='Definitions: ', font='calibri 20')
+dlabel_my_List.place(x=20, y=140)
+
+current_vocab_my_List = get_my_List_vocab()
+if len(current_vocab_my_List) > 0:
+    wlabel_my_List = Label(my_List, text='Word: ', font='calibri 20')
+    wlabel_my_List.place(x=20, y=45)
+
+    word_my_List = Label(my_List, text=current_vocab_my_List[0], font='calibri 25 bold')
+    word_my_List.place(x=200, y=40)
+
+    def_label_my_List = Label(my_List, text=current_vocab_my_List[1], font='calibri 15')
+    def_label_my_List.place(x=150, y=100)
+
+    dlabel_my_List = Label(my_List, text='Definitions: ', font='calibri 20')
+    dlabel_my_List.place(x=20, y=140)
+
+    check_frame_my_List = LabelFrame(my_List)
+    check_frame_my_List.place(x=230, y=520)
+
+    var_check_my_List = IntVar()
+
+    mylist_check_my_List = Checkbutton(check_frame_my_List, text='Add To My List.', variable=var_check_my_List, onvalue=1, offvalue=0,
+                               font='calibri 12')
+    mylist_check_my_List.deselect()
+    if current_vocab_my_List[5] == 1:
+        mylist_check_my_List.select()
+    mylist_check_my_List.pack(side=LEFT)
+
+    done_check_my_List = Checkbutton(check_frame_my_List, text='Done With This Word.', variable=var_check_my_List, onvalue=2, offvalue=0,
+                             font='calibri 12')
+    done_check_my_List.deselect()
+    if current_vocab_my_List[5] == 2:
+        done_check_my_List.select()
+    done_check_my_List.pack(side=LEFT, padx=10)
+
+    txt3_my_List = Text(my_List, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5)
+    txt3_my_List.insert(INSERT, str(current_vocab_my_List[6]))
+    txt3_my_List.place(x=180, y=570)
+
+    details_label_my_List = Label(my_List, text='For More Details:', font='calibri 15')
+    details_label_my_List.place(x=20, y=690)
+
+    clickhere_label_my_List = Label(my_List, text='Click Here', font='calibri 15', fg="blue", cursor="hand2")
+    clickhere_label_my_List.place(x=180, y=690)
+    clickhere_label_my_List.bind("<Button-1>", lambda e: open_url(str(current_vocab_my_List[4])))
+
+    another_word_my_List = Button(my_List, text='Another Word', command=lambda: raise_frame(my_List), height=1, width=13,
+                        font='calibri 15')
+    another_word_my_List.place(x=310, y=735)
 
 raise_frame(home)
 root.mainloop()
