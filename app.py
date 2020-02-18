@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import sqlite3
 from random import choice
 import webbrowser
@@ -9,34 +10,37 @@ def update_changes():
     global current_vocab
     global txt3
 
-    mysen = str(txt3.get("1.0", 'end-1c')).strip()
+    if messagebox.askyesno("Confirmation", "Are You Sure To Update Your Changes?"):
+        mysen = str(txt3.get("1.0", 'end-1c')).strip()
 
-    conn = sqlite3.connect('vocab.db')
-    c = conn.cursor()
+        conn = sqlite3.connect('vocab.db')
+        c = conn.cursor()
 
-    c.execute("""UPDATE vocab SET
-                word = :word,
-                meaning = :meaning,
-                shortdef = :shortdef,
-                longdef = :longdef,
-                url = :url,
-                done = :done,
-                mysentense = :mysentense
-                
-                WHERE oid = :oid""",
-              {
-                  'word': current_vocab[0],
-                  'meaning': current_vocab[1],
-                  'shortdef': current_vocab[2],
-                  'longdef': current_vocab[3],
-                  'url': current_vocab[4],
-                  'done': var_check.get(),
-                  'mysentense': mysen,
-                  'oid': current_vocab[7]
-              })
+        c.execute("""UPDATE vocab SET
+                    word = :word,
+                    meaning = :meaning,
+                    shortdef = :shortdef,
+                    longdef = :longdef,
+                    url = :url,
+                    done = :done,
+                    mysentense = :mysentense
+                    
+                    WHERE oid = :oid""",
+                  {
+                      'word': current_vocab[0],
+                      'meaning': current_vocab[1],
+                      'shortdef': current_vocab[2],
+                      'longdef': current_vocab[3],
+                      'url': current_vocab[4],
+                      'done': var_check.get(),
+                      'mysentense': mysen,
+                      'oid': current_vocab[7]
+                  })
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
+    else:
+        return
 
 
 def open_url(url):
