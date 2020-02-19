@@ -5,14 +5,8 @@ from random import choice
 import webbrowser
 
 
-def update_changes():
-    global var_check
-    global current_vocab
-    global txt3
-
+def update_changes(current_v, mysen, chvar):
     if messagebox.askyesno("Confirmation", "Are You Sure To Update Your Changes?"):
-        mysen = str(txt3.get("1.0", 'end-1c')).strip()
-
         conn = sqlite3.connect('vocab.db')
         c = conn.cursor()
 
@@ -27,14 +21,14 @@ def update_changes():
                     
                     WHERE oid = :oid""",
                   {
-                      'word': current_vocab[0],
-                      'meaning': current_vocab[1],
-                      'shortdef': current_vocab[2],
-                      'longdef': current_vocab[3],
-                      'url': current_vocab[4],
-                      'done': var_check.get(),
+                      'word': current_v[0],
+                      'meaning': current_v[1],
+                      'shortdef': current_v[2],
+                      'longdef': current_v[3],
+                      'url': current_v[4],
+                      'done': chvar,
                       'mysentense': mysen,
-                      'oid': current_vocab[7]
+                      'oid': current_v[7]
                   })
 
         conn.commit()
@@ -148,8 +142,9 @@ def init_word_my_List():
         txt3_my_List.insert(INSERT, str(current_vocab_my_List[6]))
         txt3_my_List.place(x=180, y=570)
 
-        update_btn_my_List = Button(my_List, text='Update', command=update_changes, height=1, width=13,
-                            font='calibri 15')
+        update_btn_my_List = Button(my_List, text='Update',
+                                    command=lambda: update_changes(current_vocab_my_List, str(txt3_my_List.get("1.0", 'end-1c')).strip(),
+                                    var_check_my_List.get()), height=1, width=13, font='calibri 15')
         update_btn_my_List.place(x=620, y=590)
 
         details_label_my_List = Label(my_List, text='For More Details:', font='calibri 15')
@@ -231,8 +226,8 @@ def init_word():
     txt3.insert(INSERT, str(current_vocab[6]))
     txt3.place(x=180, y=570)
 
-    update_btn = Button(random, text='Update', command=update_changes, height=1, width=13,
-                          font='calibri 15')
+    update_btn = Button(random, text='Update', command=lambda: update_changes(current_vocab, str(txt3.get("1.0", 'end-1c')).strip(),
+                        var_check.get()), height=1, width=13, font='calibri 15')
     update_btn.place(x=620, y=590)
 
 
