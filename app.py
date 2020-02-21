@@ -8,6 +8,7 @@ import webbrowser
 def next_prev_handler(btn, cframe, var):
     global current_vocab_my_List_arr
     global random_vocab_arr
+    global revise_vocab_arr
 
     if cframe == 'random':
         max_len = len(random_vocab_arr)
@@ -44,6 +45,24 @@ def next_prev_handler(btn, cframe, var):
             if c_idx == max_len:
                 c_idx = 0
             my_List_show(current_vocab_my_List_arr[c_idx])
+
+    elif cframe == 'revise':
+        max_len = len(revise_vocab_arr)
+
+        if btn == 'prev':
+            clear_revise()
+            idx = revise_vocab_arr.index(var)
+            c_idx = idx - 1
+            if c_idx == -1:
+                c_idx = max_len - 1
+            revise_show(revise_vocab_arr[c_idx])
+        else:
+            idx = revise_vocab_arr.index(var)
+            clear_revise()
+            c_idx = idx + 1
+            if c_idx == max_len:
+                c_idx = 0
+            revise_show(revise_vocab_arr[c_idx])
 
 
 def update_changes(current_v, mysen, chvar, frame):
@@ -320,6 +339,12 @@ def random_random_btn_handler():
     random_show(choice(random_vocab_arr))
 
 
+def revise_random_btn_handler():
+    global revise_vocab_arr
+    clear_revise()
+    revise_show(choice(revise_vocab_arr))
+
+
 def random_show(current_vocab):
     global wlabel
     global dlabel
@@ -441,6 +466,163 @@ def get_random_vocab():
     return ret
 
 
+def get_revise_vocab():
+    conn = sqlite3.connect('vocab.db')
+    c = conn.cursor()
+    a = c.execute("SELECT *, oid FROM vocab WHERE done = 2")
+    ret = a.fetchall()
+    conn.close()
+    return ret
+
+
+def clear_revise():
+    global wlabel_revise
+    global word_revise
+    global def_label_revise
+    global dlabel_revise
+    global txt_revise
+    global txt2_revise
+    global check_frame_revise
+    global mylist_check_revise
+    global done_check_revise
+    global mysentense_label_revise
+    global txt3_revise
+    global update_btn_revise
+    global details_label_revise
+    global clickhere_label_revise
+    global another_word_revise
+    global prev_btn_revise
+    global next_btn_revise
+    global warning_revise
+
+    wlabel_revise.destroy()
+    word_revise.destroy()
+    def_label_revise.destroy()
+    dlabel_revise.destroy()
+    txt_revise.destroy()
+    txt2_revise.destroy()
+    check_frame_revise.destroy()
+    mylist_check_revise.destroy()
+    done_check_revise.destroy()
+    mysentense_label_revise.destroy()
+    txt3_revise.destroy()
+    update_btn_revise.destroy()
+    details_label_revise.destroy()
+    clickhere_label_revise.destroy()
+    another_word_revise.destroy()
+    prev_btn_revise.destroy()
+    next_btn_revise.destroy()
+    warning_revise.destroy()
+
+
+def revise_show(current_v):
+    global wlabel_revise
+    global word_revise
+    global def_label_revise
+    global dlabel_revise
+    global txt_revise
+    global txt2_revise
+    global check_frame_revise
+    global mylist_check_revise
+    global done_check_revise
+    global mysentense_label_revise
+    global txt3_revise
+    global update_btn_revise
+    global details_label_revise
+    global clickhere_label_revise
+    global another_word_revise
+    global prev_btn_revise
+    global next_btn_revise
+
+    wlabel_revise = Label(revise, text='Word: ', font='calibri 20')
+    wlabel_revise.place(x=20, y=45)
+
+    dlabel_revise = Label(revise, text='Definitions: ', font='calibri 20')
+    dlabel_revise.place(x=20, y=140)
+
+    word_revise = Label(revise, text=current_v[0], font='calibri 25 bold')
+    word_revise.place(x=200, y=40)
+
+    def_label_revise = Label(revise, text=current_v[1], font='calibri 15')
+    def_label_revise.place(x=150, y=100)
+
+    txt_revise = Text(revise, height=13, width=30, font='calibri 15', wrap=WORD, padx=10, pady=5)
+    txt_revise.place(x=20, y=185)
+    txt_revise.insert(INSERT, str(current_v[2]))
+    txt_revise.config(state="disabled")
+
+    txt2_revise = Text(revise, height=13, width=42, font='calibri 15', wrap=WORD, padx=10, pady=5)
+    txt2_revise.place(x=350, y=185)
+    txt2_revise.insert(INSERT, str(current_v[3]))
+    txt2_revise.config(state="disabled")
+
+    check_frame_revise = LabelFrame(revise)
+    check_frame_revise.place(x=230, y=520)
+
+    var_check_revise = IntVar()
+
+    mylist_check_revise = Checkbutton(check_frame_revise, text='Add To My List.', variable=var_check_revise,
+                                       onvalue=1, offvalue=0, font='calibri 12')
+    if current_v[5] == 1:
+        mylist_check_revise.select()
+    mylist_check_revise.pack(side=LEFT)
+
+    done_check_revise = Checkbutton(check_frame_revise, text='Done With This Word.', variable=var_check_revise,
+                                     onvalue=2, offvalue=0, font='calibri 12')
+    if current_v[5] == 2:
+        done_check_revise.select()
+    done_check_revise.pack(side=LEFT, padx=10)
+
+    mysentense_label_revise = Label(revise, text='My Sentense:', font='calibri 20')
+    mysentense_label_revise.place(x=20, y=590)
+
+    txt3_revise = Text(revise, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5)
+    txt3_revise.insert(INSERT, str(current_v[6]))
+    txt3_revise.place(x=180, y=570)
+
+    update_btn_revise = Button(revise, text='Update',
+                                command=lambda: update_changes(current_v,
+                                                               str(txt3_revise.get("1.0", 'end-1c')).strip(),
+                                                               var_check_revise.get(), revise), height=1, width=13,
+                                font='calibri 15')
+    update_btn_revise.place(x=620, y=590)
+
+    details_label_revise = Label(revise, text='For More Details:', font='calibri 15')
+    details_label_revise.place(x=20, y=690)
+
+    clickhere_label_revise = Label(revise, text='Click Here', font='calibri 15', fg="blue", cursor="hand2")
+    clickhere_label_revise.place(x=180, y=690)
+    clickhere_label_revise.bind("<Button-1>", lambda e: open_url(str(current_v[4])))
+
+    another_word_revise = Button(revise, text='Random Word', command=revise_random_btn_handler, height=1,
+                                  width=13, font='calibri 15')
+    another_word_revise.place(x=310, y=735)
+
+    prev_btn_revise = Button(revise, text='<<',
+                              command=lambda: next_prev_handler('prev', 'revise', current_v), height=1,
+                              width=13, font='calibri 15 bold')
+    prev_btn_revise.place(x=150, y=735)
+
+    next_btn_revise = Button(revise, text='>>',
+                              command=lambda: next_prev_handler('next', 'revise', current_v), height=1,
+                              width=13, font='calibri 15 bold')
+    next_btn_revise.place(x=470, y=735)
+
+
+def init_revise():
+    global revise_vocab_arr
+    global warning_revise
+
+    revise_vocab_arr = get_revise_vocab()
+
+    if len(revise_vocab_arr) > 0:
+        warning_revise.destroy()
+        revise_show(choice(revise_vocab_arr))
+    else:
+        warning_revise = Label(revise, text="Learn Words First !!!", font='calibri 15 bold')
+        warning_revise.place(x=25, y=250)
+
+
 def raise_frame(frame):
     init_current_mylist_count()
     init_current_done()
@@ -448,6 +630,8 @@ def raise_frame(frame):
     init_word()
     clear_word_my_List()
     init_word_my_List()
+    clear_revise()
+    init_revise()
 
     frame.tkraise()
 
@@ -459,14 +643,16 @@ root.iconbitmap('Data/sru.ico')
 root.geometry('800x800+300+50')
 random_vocab_arr = get_random_vocab()
 current_vocab_my_List_arr = get_my_List_vocab()
+revise_vocab_arr = get_revise_vocab()
 current_done = get_done_word()
 current_mylist_count = get_current_mylist_count()
 
 home = Frame(root)
 random = Frame(root)
 my_List = Frame(root)
+revise = Frame(root)
 
-for frame in (home, random, my_List):
+for frame in (home, random, my_List, revise):
     frame.grid(row=0, column=0, sticky='news')
 
 title = Label(home, text='Vocabulary Learner', font='calibri 35 bold')
@@ -489,7 +675,7 @@ mylist_btn = Button(home, text='My List', command=lambda: raise_frame(my_List), 
                     font='calibri 20')
 mylist_btn.grid(row=5, column=1, columnspan=3, padx=150, pady=20)
 
-revise_btn = Button(home, text='Revise Words', command="", height=2, width=15,
+revise_btn = Button(home, text='Revise Words', command=lambda: raise_frame(revise), height=2, width=15,
                     font='calibri 20')
 revise_btn.grid(row=6, column=1, columnspan=3, padx=150, pady=20)
 
@@ -539,6 +725,30 @@ another_word_my_List = Button()
 prev_btn_my_List = Button()
 next_btn_my_List = Button()
 warning_my_List = Label()
+
+################################# Revise_Frame #################################
+
+home_btn_ml = Button(revise, text='Home', command=lambda: raise_frame(home), height=1, width=10, font='calibri 10')
+home_btn_ml.place(x=5, y=5)
+
+wlabel_revise = Label()
+word_revise = Label()
+def_label_revise = Label()
+dlabel_revise = Label()
+txt_revise = Text()
+txt2_revise = Text()
+check_frame_revise = LabelFrame()
+mylist_check_revise = Checkbutton()
+done_check_revise = Checkbutton()
+mysentense_label_revise = Label()
+txt3_revise = Text()
+update_btn_revise = Button()
+details_label_revise = Label()
+clickhere_label_revise = Label()
+another_word_revise = Button()
+prev_btn_revise = Button()
+next_btn_revise = Button()
+warning_revise = Label()
 
 
 raise_frame(home)

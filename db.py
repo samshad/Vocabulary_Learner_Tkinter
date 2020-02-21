@@ -39,13 +39,13 @@ c = conn.cursor()
 #               'url': 'sdiwfw2342234nwsd'
 #           })
 
-#arr = []
-c.execute("SELECT *, oid FROM vocab WHERE done = 1")
-arr = c.fetchall()
 
-#a = choice(arr)
-for i in arr:
-    print(len(i))
+# c.execute("SELECT *, oid FROM vocab WHERE done = 1")
+# arr = c.fetchall()
+#
+# #a = choice(arr)
+# for i in arr:
+#     print(len(i))
 
 conn.commit()
 conn.close()
