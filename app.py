@@ -5,6 +5,47 @@ from random import choice
 import webbrowser
 
 
+def next_prev_handler(btn, cframe, var):
+    global current_vocab_my_List_arr
+    global random_vocab_arr
+
+    if cframe == 'random':
+        max_len = len(random_vocab_arr)
+
+        if btn == 'prev':
+            idx = random_vocab_arr.index(var)
+            clear_word_random()
+            c_idx = idx - 1
+            if c_idx == -1:
+                c_idx = max_len - 1
+            random_show(random_vocab_arr[c_idx])
+        else:
+            idx = random_vocab_arr.index(var)
+            clear_word_random()
+            c_idx = idx + 1
+            if c_idx == max_len:
+                c_idx = 0
+            random_show(random_vocab_arr[c_idx])
+
+    elif cframe == 'my_List':
+        max_len = len(current_vocab_my_List_arr)
+
+        if btn == 'prev':
+            clear_word_my_List()
+            idx = current_vocab_my_List_arr.index(var)
+            c_idx = idx - 1
+            if c_idx == -1:
+                c_idx = max_len - 1
+            my_List_show(current_vocab_my_List_arr[c_idx])
+        else:
+            idx = current_vocab_my_List_arr.index(var)
+            clear_word_my_List()
+            c_idx = idx + 1
+            if c_idx == max_len:
+                c_idx = 0
+            my_List_show(current_vocab_my_List_arr[c_idx])
+
+
 def update_changes(current_v, mysen, chvar, frame):
     if messagebox.askyesno("Confirmation", "Are You Sure To Update Your Changes?"):
         conn = sqlite3.connect('vocab.db')
@@ -107,6 +148,8 @@ def clear_word_random():
     global prev_btn
     global next_btn
     global warning
+    global prev_btn_random
+    global next_btn_random
 
     wlabel.destroy()
     dlabel.destroy()
@@ -123,6 +166,8 @@ def clear_word_random():
     details_label.destroy()
     clickhere_label.destroy()
     another_word.destroy()
+    prev_btn_random.destroy()
+    next_btn_random.destroy()
 
 
 def clear_word_my_List():
@@ -248,10 +293,10 @@ def my_List_show(current_vocab_my_List):
                                   width=13, font='calibri 15')
     another_word_my_List.place(x=310, y=735)
 
-    prev_btn_my_List = Button(my_List, text='<<', command="", height=1, width=13, font='calibri 15 bold')
+    prev_btn_my_List = Button(my_List, text='<<', command=lambda: next_prev_handler('prev', 'my_List', current_vocab_my_List), height=1, width=13, font='calibri 15 bold')
     prev_btn_my_List.place(x=150, y=735)
 
-    next_btn_my_List = Button(my_List, text='>>', command="", height=1, width=13, font='calibri 15 bold')
+    next_btn_my_List = Button(my_List, text='>>', command=lambda: next_prev_handler('next', 'my_List', current_vocab_my_List), height=1, width=13, font='calibri 15 bold')
     next_btn_my_List.place(x=470, y=735)
 
 
@@ -291,6 +336,8 @@ def random_show(current_vocab):
     global details_label
     global clickhere_label
     global another_word
+    global prev_btn_random
+    global next_btn_random
 
     wlabel = Label(random, text='Word: ', font='calibri 20')
     wlabel.place(x=20, y=45)
@@ -361,6 +408,12 @@ def random_show(current_vocab):
     another_word = Button(random, text='Another Word', command=random_random_btn_handler, height=1, width=13,
                           font='calibri 15')
     another_word.place(x=310, y=735)
+
+    prev_btn_random = Button(random, text='<<', command=lambda: next_prev_handler('prev', 'random', current_vocab), height=1, width=13, font='calibri 15 bold')
+    prev_btn_random.place(x=150, y=735)
+
+    next_btn_random = Button(random, text='>>', command=lambda: next_prev_handler('next', 'random', current_vocab), height=1, width=13, font='calibri 15 bold')
+    next_btn_random.place(x=470, y=735)
 
 
 def init_word():
@@ -442,8 +495,7 @@ revise_btn.grid(row=6, column=1, columnspan=3, padx=150, pady=20)
 
 ################################# Random Learning_Frame #################################
 
-home_btn = Button(random, text='Home', command=lambda: raise_frame(home), height=1, width=10,
-                    font='calibri 10')
+home_btn = Button(random, text='Home', command=lambda: raise_frame(home), height=1, width=10, font='calibri 10')
 home_btn.place(x=5, y=5)
 
 wlabel = Label()
@@ -461,11 +513,12 @@ update_btn = Button()
 details_label = Label()
 clickhere_label = Label()
 another_word = Button()
+prev_btn_random = Button()
+next_btn_random = Button()
 
 ################################# my_List_Frame #################################
 
-home_btn_ml = Button(my_List, text='Home', command=lambda: raise_frame(home), height=1, width=10,
-                        font='calibri 10')
+home_btn_ml = Button(my_List, text='Home', command=lambda: raise_frame(home), height=1, width=10, font='calibri 10')
 home_btn_ml.place(x=5, y=5)
 
 wlabel_my_List = Label()
