@@ -342,7 +342,7 @@ def random_show(current_vocab):
     mysentense_label.place(x=20, y=590)
 
     txt3.destroy()
-    txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5, max)
+    txt3 = Text(random, height=4, width=45, font='calibri 13', wrap=WORD, padx=10, pady=5)
     txt3.insert(INSERT, str(current_vocab[6]))
     txt3.place(x=180, y=570)
 
